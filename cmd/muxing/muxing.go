@@ -7,7 +7,9 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/GolangUnited/helloweb/internal/webserver"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 )
 
 /**
@@ -21,18 +23,30 @@ main function reads host/port from env just for an example, flavor it following 
 func Start(host string, port int) {
 	router := mux.NewRouter()
 
+	handler := webserver.NewHandler()
+	handler.Register(router)
+
 	log.Println(fmt.Printf("Starting API server on %s:%d\n", host, port))
 	if err := http.ListenAndServe(fmt.Sprintf("%s:%d", host, port), router); err != nil {
 		log.Fatal(err)
 	}
+
 }
 
 //main /** starts program, gets HOST:PORT param and calls Start func.
 func main() {
+
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
 	host := os.Getenv("HOST")
 	port, err := strconv.Atoi(os.Getenv("PORT"))
 	if err != nil {
 		port = 8081
 	}
+
 	Start(host, port)
+
 }
